@@ -29,15 +29,37 @@ app.get('/api/visits/:userID', async (req, res) => {
     }
 });
 
-// create a new visit
+// create a new visit/spot if it doesn't exist
 app.post('/api/visits', async (req, res) => {
     try {
-        const { user_id, spot_id, spot_name, spent, rating, notes, visit_date } = req.body;
+        const { user_id, spot_name, spent, rating, notes, visit_date } = req.body;
+        
+        // Check if spot exists
+        let { data: existingSpot } = await supabase
+            .from('boba_spots')
+            .select('id')
+            .ilike('name', spot_name)
+            .maybeSingle();
+        
+        let spot_id = existingSpot?.id;
 
+        if (!existingSpot) {
+            // Create new spot
+            const { data: newSpot, error: spotError } = await supabase
+                .from('boba_spots')
+                .insert({ name: spot_name})
+                .select()
+                .single();
+
+            if (spotError) throw spotError;
+            spot_id = newSpot.id;
+        }
+
+        // Create visit
         const { data, error } = await supabase
             .from('visits')
             .insert([{ user_id, spot_id, spot_name, spent, rating, notes, visit_date }])
-            .select()
+            .select();
         
         if (error) throw error;
         res.status(201).json(data[0]);
@@ -163,7 +185,6 @@ app.put('/api/users/:userID/budget', async (req, res) => {
         const { data, error } = await supabase
             .from('user_profiles')
             .upsert({ user_id: req.params.userID, monthly_budget }, { onConflict: 'user_id' })
-            .eq('user_id', req.params.userID)
             .select()
         
         if (error) throw error;
@@ -172,3 +193,41 @@ app.put('/api/users/:userID/budget', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+// Search boba spots by name
+app.get('/api/spots/search', async (req, res) => {
+    try {
+        const query = req.query.q || '';
+        
+        const { data, error } = await supabase
+            .from('boba_spots')
+            .select('*')
+            .ilike('name', `%${query}%`);
+        
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Get all boba spots
+app.get('/api/spots', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('boba_spots')
+            .select('*')
+            .order('name');
+        
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
