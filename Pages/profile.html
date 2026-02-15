@@ -127,15 +127,8 @@
           <h4>Monthly Spending</h4>
           <div class="chart-wrap">
             <p class="axis-label axis-y">Amount Spent</p>
-            <div class="bar-chart" role="img" aria-label="Monthly spending bar chart from January to June">
-              <div class="bars">
-                <div class="bar-col"><div class="bar" style="--h: 36%"></div><span>Jan</span></div>
-                <div class="bar-col"><div class="bar" style="--h: 48%"></div><span>Feb</span></div>
-                <div class="bar-col"><div class="bar" style="--h: 62%"></div><span>Mar</span></div>
-                <div class="bar-col"><div class="bar" style="--h: 54%"></div><span>Apr</span></div>
-                <div class="bar-col"><div class="bar" style="--h: 78%"></div><span>May</span></div>
-                <div class="bar-col"><div class="bar" style="--h: 69%"></div><span>Jun</span></div>
-              </div>
+            <div class="bar-chart" role="img" aria-label="Monthly spending bar chart">
+              <div class="bars"></div> <!-- empty container, JS will populate -->
             </div>
             <p class="axis-label axis-x">Months</p>
           </div>
@@ -145,73 +138,116 @@
     </section>
   </main>
   <script>
-    // HARDCODED USER ID FOR DEMO
     const USER_ID = 'JohnChoi';
-
+    
     async function loadDashboard() {
       try {
-        // Fetch spending summary
-        const summaryRes = await fetch(`http://localhost:5500/api/spending-summary/${USER_ID}`);
-        const summary = await summaryRes.json();
-
-        // Fetch budget
-        const budgetRes = await fetch(`http://localhost:5500/api/users/${USER_ID}/budget`);
-        const budgetData = await budgetRes.json();
-
-        // Update spent this month
-        document.querySelector('.budget-stats .stat-box:nth-child(1) .value').textContent = 
-          `$${summary.month_spent}`;
-        
-        // Update monthly budget
-        document.querySelector('.budget-stats .stat-box:nth-child(2) .value').textContent = 
-          `$${budgetData.monthly_budget.toFixed(2)}`;
-
-        // Calculate and update status
-        const remaining = budgetData.monthly_budget - parseFloat(summary.month_spent);
+        // --- ELEMENT REFERENCES ---
+        const spentEl = document.querySelector('.budget-stats .stat-box:nth-child(1) .value');
+        const budgetEl = document.querySelector('.budget-stats .stat-box:nth-child(2) .value');
         const statusEl = document.querySelector('.budget-stats .stat-box:nth-child(3) .value');
-        
-        if (remaining >= 0) {
-          statusEl.textContent = `$${remaining.toFixed(2)} under budget`;
-          statusEl.className = 'value under';
-        } else {
-          statusEl.textContent = `$${Math.abs(remaining).toFixed(2)} over budget`;
-          statusEl.className = 'value over';
+        const donutCenter = document.querySelector('.donut-center span');
+        const legendUsed = document.querySelector('.legend span:nth-child(1)');
+        const legendRemain = document.querySelector('.legend span:nth-child(2)');
+        const topPlacesList = document.querySelector('.top-places ul');
+        const reviewsContainer = document.querySelector('.reviews');
+        const barsContainer = document.querySelector('.bar-chart .bars');
+    
+        // --- INITIALIZE DASHBOARD EMPTY ---
+        spentEl.textContent = '$0.00';
+        budgetEl.textContent = '$0.00';
+        statusEl.textContent = '—';
+        donutCenter.textContent = '0%';
+        legendUsed.innerHTML = `<i class="dot used-dot"></i>Used (0%)`;
+        legendRemain.innerHTML = `<i class="dot remain-dot"></i>Remaining (0%)`;
+        topPlacesList.innerHTML = `<li style="padding:1rem; color:#6c5656;">No visits yet</li>`;
+        reviewsContainer.innerHTML = `<p style="color:#6c5656;">No reviews yet</p>`;
+        barsContainer.innerHTML = '<p style="color:#6e5454; font-size:0.9rem;">No visits yet</p>';
+    
+        // --- FETCH DATA ---
+        const [summaryRes, budgetRes, visitsRes] = await Promise.all([
+          fetch(`http://localhost:5500/api/spending-summary/${USER_ID}`),
+          fetch(`http://localhost:5500/api/users/${USER_ID}/budget`),
+          fetch(`http://localhost:5500/api/visits/${USER_ID}`)
+        ]);
+    
+        const summary = await summaryRes.json();
+        const budgetData = await budgetRes.json();
+        const visits = await visitsRes.json();
+    
+        // --- UPDATE STATS & DONUT ---
+        const monthSpent = parseFloat(summary.month_spent) || 0;
+        const monthlyBudget = parseFloat(budgetData.monthly_budget) || 0;
+    
+        if (monthSpent || monthlyBudget) {
+          spentEl.textContent = `$${monthSpent.toFixed(2)}`;
+          budgetEl.textContent = `$${monthlyBudget.toFixed(2)}`;
+    
+          const remaining = monthlyBudget - monthSpent;
+          if (remaining >= 0) {
+            statusEl.textContent = `$${remaining.toFixed(2)} under budget`;
+            statusEl.className = 'value under';
+          } else {
+            statusEl.textContent = `$${Math.abs(remaining).toFixed(2)} over budget`;
+            statusEl.className = 'value over';
+          }
+    
+          const percentUsed = monthlyBudget ? Math.min((monthSpent / monthlyBudget) * 100, 100).toFixed(0) : 0;
+          document.querySelector('.donut').style.background = `conic-gradient(var(--leaf) 0 ${percentUsed}%, var(--lime) ${percentUsed}% 100%)`;
+          donutCenter.textContent = `${percentUsed}%`;
+          legendUsed.innerHTML = `<i class="dot used-dot"></i>Used (${percentUsed}%)`;
+          legendRemain.innerHTML = `<i class="dot remain-dot"></i>Remaining (${100 - percentUsed}%)`;
         }
-
-        // Update donut chart percentage
-        const percentUsed = (parseFloat(summary.month_spent) / budgetData.monthly_budget * 100).toFixed(0);
-        document.querySelector('.donut-center span').textContent = `${percentUsed}%`;
-        document.querySelector('.donut').setAttribute('aria-label', `${percentUsed} percent of budget used`);
-        
-        // Update legend
-        document.querySelector('.legend span:nth-child(1)').innerHTML = 
-          `<i class="dot used-dot"></i>Used (${percentUsed}%)`;
-        document.querySelector('.legend span:nth-child(2)').innerHTML = 
-          `<i class="dot remain-dot"></i>Remaining (${100 - percentUsed}%)`;
-
-        // Update top 3 visited places
+    
+        // --- TOP 3 VISITED SPOTS ---
         if (summary.top_spots && summary.top_spots.length > 0) {
-          const topPlacesList = document.querySelector('.top-places ul');
           topPlacesList.innerHTML = summary.top_spots.slice(0, 3).map(spot => `
             <li>
               <div class="place-details">
                 <span>${spot.name}</span>
                 <small>Visits: ${spot.visit_count}</small>
               </div>
-              <strong>$${spot.total_spent}</strong>
+              <strong>$${(spot.total_spent || 0).toFixed(2)}</strong>
             </li>
           `).join('');
         }
-
-        // Fetch recent visits for reviews
-        const visitsRes = await fetch(`http://localhost:5500/api/visits/${USER_ID}`);
-        const visits = await visitsRes.json();
-
-        // Show latest 3 reviews with notes and ratings
-        const reviewsWithNotes = visits.filter(v => v.notes && v.rating).slice(0, 3);
-        
+    
+        // --- DYNAMIC BAR CHART ---
+        barsContainer.innerHTML = ''; // clear previous bars
+    
+        if (summary.monthly_spent_data && summary.monthly_spent_data.length > 0) {
+          // Sort months oldest -> newest
+          const sortedData = summary.monthly_spent_data.sort(
+            (a, b) => new Date(a.month + '-01') - new Date(b.month + '-01')
+          );
+    
+          const maxSpent = Math.max(...sortedData.map(d => d.spent), 10);
+    
+          sortedData.forEach(d => {
+            const percent = (d.spent / maxSpent) * 100;
+    
+            const barCol = document.createElement('div');
+            barCol.className = 'bar-col';
+    
+            const barDiv = document.createElement('div');
+            barDiv.className = 'bar';
+            barDiv.style.height = `${percent}%`; // set actual height
+    
+            const monthLabel = document.createElement('span');
+            monthLabel.textContent = d.month;
+    
+            barCol.appendChild(barDiv);
+            barCol.appendChild(monthLabel);
+    
+            barsContainer.appendChild(barCol);
+          });
+        } else {
+          barsContainer.innerHTML = '<p style="color:#6e5454; font-size:0.9rem;">No visits yet</p>';
+        }
+    
+        // --- RECENT REVIEWS ---
+        const reviewsWithNotes = visits.filter(v => v.notes && v.rating).slice(-3); // latest 3
         if (reviewsWithNotes.length > 0) {
-          const reviewsContainer = document.querySelector('.reviews');
           reviewsContainer.innerHTML = reviewsWithNotes.map(visit => {
             const stars = '★'.repeat(visit.rating) + '☆'.repeat(5 - visit.rating);
             return `
@@ -223,15 +259,15 @@
             `;
           }).join('');
         }
-
+    
       } catch (error) {
         console.error('Error loading dashboard:', error);
         alert('Failed to load dashboard data. Make sure the backend is running on port 5500!');
       }
     }
-
-    // Load dashboard when page loads
+    
+    // Load dashboard on page load
     loadDashboard();
-  </script>
+    </script>
 </body>
 </html>
