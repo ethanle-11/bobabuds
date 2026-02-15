@@ -144,5 +144,94 @@
       </div>
     </section>
   </main>
+  <script>
+    // HARDCODED USER ID FOR DEMO
+    const USER_ID = 'JohnChoi';
+
+    async function loadDashboard() {
+      try {
+        // Fetch spending summary
+        const summaryRes = await fetch(`http://localhost:5500/api/spending-summary/${USER_ID}`);
+        const summary = await summaryRes.json();
+
+        // Fetch budget
+        const budgetRes = await fetch(`http://localhost:5500/api/users/${USER_ID}/budget`);
+        const budgetData = await budgetRes.json();
+
+        // Update spent this month
+        document.querySelector('.budget-stats .stat-box:nth-child(1) .value').textContent = 
+          `$${summary.month_spent}`;
+        
+        // Update monthly budget
+        document.querySelector('.budget-stats .stat-box:nth-child(2) .value').textContent = 
+          `$${budgetData.monthly_budget.toFixed(2)}`;
+
+        // Calculate and update status
+        const remaining = budgetData.monthly_budget - parseFloat(summary.month_spent);
+        const statusEl = document.querySelector('.budget-stats .stat-box:nth-child(3) .value');
+        
+        if (remaining >= 0) {
+          statusEl.textContent = `$${remaining.toFixed(2)} under budget`;
+          statusEl.className = 'value under';
+        } else {
+          statusEl.textContent = `$${Math.abs(remaining).toFixed(2)} over budget`;
+          statusEl.className = 'value over';
+        }
+
+        // Update donut chart percentage
+        const percentUsed = (parseFloat(summary.month_spent) / budgetData.monthly_budget * 100).toFixed(0);
+        document.querySelector('.donut-center span').textContent = `${percentUsed}%`;
+        document.querySelector('.donut').setAttribute('aria-label', `${percentUsed} percent of budget used`);
+        
+        // Update legend
+        document.querySelector('.legend span:nth-child(1)').innerHTML = 
+          `<i class="dot used-dot"></i>Used (${percentUsed}%)`;
+        document.querySelector('.legend span:nth-child(2)').innerHTML = 
+          `<i class="dot remain-dot"></i>Remaining (${100 - percentUsed}%)`;
+
+        // Update top 3 visited places
+        if (summary.top_spots && summary.top_spots.length > 0) {
+          const topPlacesList = document.querySelector('.top-places ul');
+          topPlacesList.innerHTML = summary.top_spots.slice(0, 3).map(spot => `
+            <li>
+              <div class="place-details">
+                <span>${spot.name}</span>
+                <small>Visits: ${spot.visit_count}</small>
+              </div>
+              <strong>$${spot.total_spent}</strong>
+            </li>
+          `).join('');
+        }
+
+        // Fetch recent visits for reviews
+        const visitsRes = await fetch(`http://localhost:5500/api/visits/${USER_ID}`);
+        const visits = await visitsRes.json();
+
+        // Show latest 3 reviews with notes and ratings
+        const reviewsWithNotes = visits.filter(v => v.notes && v.rating).slice(0, 3);
+        
+        if (reviewsWithNotes.length > 0) {
+          const reviewsContainer = document.querySelector('.reviews');
+          reviewsContainer.innerHTML = reviewsWithNotes.map(visit => {
+            const stars = '★'.repeat(visit.rating) + '☆'.repeat(5 - visit.rating);
+            return `
+              <article class="review-item">
+                <p class="place">${visit.spot_name}</p>
+                <p class="stars" aria-label="${visit.rating} out of 5 stars">${stars}</p>
+                <p class="review-text">${visit.notes}</p>
+              </article>
+            `;
+          }).join('');
+        }
+
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
+        alert('Failed to load dashboard data. Make sure the backend is running on port 5500!');
+      }
+    }
+
+    // Load dashboard when page loads
+    loadDashboard();
+  </script>
 </body>
 </html>
