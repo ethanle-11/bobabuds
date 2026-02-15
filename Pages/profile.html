@@ -215,13 +215,15 @@
         // --- DYNAMIC BAR CHART ---
         barsContainer.innerHTML = ''; // clear previous bars
     
-        const chartMonths = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
+        const orderedMonths = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
         const demoSpendByMonth = {
           Mar: 24, Apr: 32, May: 41, Jun: 29, Jul: 46, Aug: 37,
           Sep: 33, Oct: 43, Nov: 27, Dec: 50, Jan: 36, Feb: 31
         };
         const monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const currentMonth = monthShortNames[new Date().getMonth()];
+        const currentIdx = orderedMonths.indexOf(currentMonth);
+        const chartMonths = Array.from({ length: 6 }, (_, i) => orderedMonths[(currentIdx - 5 + i + 12) % 12]);
 
         const chartData = chartMonths.map(month => {
           if (month === currentMonth) {
