@@ -154,3 +154,21 @@ app.get('/api/users/:userID/budget', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+// Update user's budget
+app.put('/api/users/:userID/budget', async (req, res) => {
+    try {
+        const { monthly_budget } = req.body;
+
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .upsert({ user_id: req.params.userID, monthly_budget }, { onConflict: 'user_id' })
+            .eq('user_id', req.params.userID)
+            .select()
+        
+        if (error) throw error;
+        res.json(data[0]);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
