@@ -381,6 +381,7 @@ h4 {
   width: 100%;
   max-width: 42px;
   height: 0; /* start at 0 */
+  align-self: end;
   border-radius: 8px 8px 0 0;
   background: linear-gradient(180deg, var(--leaf), var(--moss));
   transition: height 0.5s ease-out;
