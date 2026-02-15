@@ -215,35 +215,38 @@
         // --- DYNAMIC BAR CHART ---
         barsContainer.innerHTML = ''; // clear previous bars
     
-        if (summary.monthly_spent_data && summary.monthly_spent_data.length > 0) {
-          // Sort months oldest -> newest
-          const sortedData = summary.monthly_spent_data.sort(
-            (a, b) => new Date(a.month + '-01') - new Date(b.month + '-01')
-          );
-    
-          const maxSpent = Math.max(...sortedData.map(d => d.spent), 10);
-    
-          sortedData.forEach(d => {
-            const percent = (d.spent / maxSpent) * 100;
-    
-            const barCol = document.createElement('div');
-            barCol.className = 'bar-col';
-    
-            const barDiv = document.createElement('div');
-            barDiv.className = 'bar';
-            barDiv.style.height = `${percent}%`; // set actual height
-    
-            const monthLabel = document.createElement('span');
-            monthLabel.textContent = d.month;
-    
-            barCol.appendChild(barDiv);
-            barCol.appendChild(monthLabel);
-    
-            barsContainer.appendChild(barCol);
-          });
-        } else {
-          barsContainer.innerHTML = '<p style="color:#6e5454; font-size:0.9rem;">No visits yet</p>';
-        }
+        const chartMonths = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
+        const demoSpendByMonth = {
+          Mar: 24, Apr: 32, May: 41, Jun: 29, Jul: 46, Aug: 37,
+          Sep: 33, Oct: 43, Nov: 27, Dec: 50, Jan: 36, Feb: 31
+        };
+        const monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const currentMonth = monthShortNames[new Date().getMonth()];
+
+        const chartData = chartMonths.map(month => {
+          if (month === currentMonth) {
+            return { month, spent: monthSpent };
+          }
+          return { month, spent: demoSpendByMonth[month] || 0 };
+        });
+
+        const maxSpent = Math.max(...chartData.map(d => d.spent), 10);
+
+        chartData.forEach(({ month, spent }) => {
+          const barCol = document.createElement('div');
+          barCol.className = 'bar-col';
+
+          const barDiv = document.createElement('div');
+          barDiv.className = 'bar';
+          barDiv.style.height = `${(spent / maxSpent) * 100}%`;
+
+          const monthLabel = document.createElement('span');
+          monthLabel.textContent = month;
+
+          barCol.appendChild(barDiv);
+          barCol.appendChild(monthLabel);
+          barsContainer.appendChild(barCol);
+        });
     
         // --- RECENT REVIEWS ---
         const reviewsWithNotes = visits.filter(v => v.notes && v.rating).slice(-3); // latest 3
