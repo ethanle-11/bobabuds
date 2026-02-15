@@ -1,0 +1,271 @@
+/*
+  Boba Buds styles
+  Flexbox-first layout for all major page sections
+*/
+
+:root {
+  --bg: #f0f0d8;
+  --text: #604848;
+  --header: #607848;
+  --primary: #789048;
+  --highlight: #c0d860;
+  --surface-strong: #ffffff;
+  --header-text: #f0f0d8;
+  --shadow-soft: 0 6px 18px rgba(96, 72, 72, 0.14);
+
+  --radius-pill: 999px;
+  --container-width: 980px;
+}
+
+/* Base reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    linear-gradient(180deg, rgba(192, 216, 96, 0.2) 0%, transparent 180px),
+    var(--bg);
+  font-family: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: min(92%, var(--container-width));
+  margin: 0 auto;
+}
+
+/* Accessibility utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Header */
+.site-header {
+  height: 82px;
+  background: var(--header);
+  color: var(--header-text);
+  display: flex;
+  align-items: center;
+}
+
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 82px;
+  padding: 0 32px;
+}
+
+.site-title {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  line-height: 1;
+  height: 82px;
+  width: 360px;
+  position: relative;
+  overflow: visible;
+}
+
+.site-logo {
+  height: 180px;
+  width: auto;
+  display: block;
+  position: absolute;
+  left: 55px;
+  top: 60%;
+  transform: translateY(-50%);
+}
+
+.site-panda {
+  height: 120px;
+  width: auto;
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a {
+  border: 1px solid rgba(240, 240, 216, 0.35);
+  background: rgba(240, 240, 216, 0.08);
+  color: var(--header-text);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  background: rgba(240, 240, 216, 0.18);
+}
+
+.nav-links a:active {
+  background: rgba(240, 240, 216, 0.24);
+}
+
+.site-title:focus-visible,
+.nav-links a:focus-visible,
+#shop-search:focus-visible,
+.geo-button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Main section */
+.main-content {
+  flex: 1;
+  padding: 2rem 0 3rem;
+  display: flex;
+}
+
+.hero {
+  min-height: 70vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+}
+
+.hero h1 {
+  margin: 0;
+  color: var(--header);
+  font-size: clamp(2rem, 4.4vw, 3rem);
+}
+
+.hero-subtext {
+  margin: 0;
+  max-width: 62ch;
+  color: #6c5656;
+}
+
+/* Search area */
+.search-region {
+  width: min(100%, 740px);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+#shop-search {
+  width: 100%;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-pill);
+  background: var(--surface-strong);
+  color: var(--text);
+  font-size: 1rem;
+  padding: 1rem 1.2rem;
+  box-shadow: var(--shadow-soft);
+}
+
+#shop-search::placeholder {
+  color: #7a6363;
+}
+
+#shop-search:focus {
+  border-color: var(--header);
+  box-shadow: 0 0 0 4px rgba(120, 144, 72, 0.28), var(--shadow-soft);
+  outline: none;
+}
+
+.geo-controls {
+  margin-top: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.geo-button {
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: var(--bg);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.38rem 0.72rem;
+  cursor: pointer;
+  transition: background-color 0.16s ease, transform 0.1s ease;
+}
+
+.geo-button:hover {
+  background: var(--header);
+}
+
+.geo-button:active {
+  transform: translateY(1px);
+}
+
+.geo-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.geo-status {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .nav-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    padding: 0.75rem 0;
+  }
+
+  .site-title {
+    width: 100%;
+  }
+
+  .hero {
+    min-height: 62vh;
+  }
+
+  #shop-search {
+    padding: 0.9rem 1rem;
+  }
+
+  .geo-controls {
+    gap: 0.45rem;
+  }
+}

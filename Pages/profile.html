@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boba Buds | Profile</title>
+  <link rel="stylesheet" href="profilestyles.css" />
+</head>
+<body>
+  <!-- Header contents -->
+  <header class="topbar">
+    <h1>
+      <a class="brand-link" href="../index.html" aria-label="Boba Buds home">
+        <img class="brand-logo" src="../Images/bobabudslogo.png" alt="Boba Buds">
+        <img class="brand-panda" src="../Images/bobabudspanda.png" alt="Boba Buds panda mascot">
+      </a>
+    </h1>
+    <button class="profile-pill" type="button">Profile</button>
+  </header>
+
+  <main class="dashboard">
+    <section class="left-panel">
+      <article class="card user-card">
+        <div class="user-header">
+          <img
+            class="avatar"
+            src="../Images/johnchoifrog.png"
+            alt="Profile placeholder"
+          />
+          <div>
+            <p class="kicker">Boba Buddy</p>
+            <h2 class="username">@JohnChoi.Chad.Boba</h2>
+            <p class="bio">Trying to stay on budget while still finding the best boba spots in town.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card visits-card">
+        <h3>Boba Places + Reviews</h3>
+
+        <div class="top-places">
+          <h4>Top 3 Most Visited</h4>
+          <ul>
+            <li>
+              <div class="place-details">
+                <span>Pearl Drop Cafe</span>
+                <small>Visits: 9</small>
+              </div>
+              <strong>$67.41</strong>
+            </li>
+            <li>
+              <div class="place-details">
+                <span>Tea Haven</span>
+                <small>Visits: 6</small>
+              </div>
+              <strong>$31.20</strong>
+            </li>
+            <li>
+              <div class="place-details">
+                <span>Tapioca Town</span>
+                <small>Visits: 4</small>
+              </div>
+              <strong>$20.55</strong>
+            </li>
+          </ul>
+        </div>
+
+        <div class="reviews">
+          <article class="review-item">
+            <p class="place">Pearl Drop Cafe</p>
+            <p class="stars" aria-label="5 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</p>
+            <p class="review-text">Fast service and perfect sweetness level.</p>
+          </article>
+
+          <article class="review-item">
+            <p class="place">Tea Haven</p>
+            <p class="stars" aria-label="4 out of 5 stars">&#9733;&#9733;&#9733;&#9733;&#9734;</p>
+            <p class="review-text">Great classic milk tea, pearls were slightly firm today.</p>
+          </article>
+
+          <article class="review-item">
+            <p class="place">Milk Cloud Studio</p>
+            <p class="stars" aria-label="3 out of 5 stars">&#9733;&#9733;&#9733;&#9734;&#9734;</p>
+            <p class="review-text">Creative menu but portions felt small for the price.</p>
+          </article>
+        </div>
+      </article>
+    </section>
+
+    <section class="right-panel card budget-card">
+      <div class="budget-head">
+        <h3>Budget Dashboard</h3>
+        <p>Track spending and keep your monthly boba budget in control.</p>
+      </div>
+
+      <div class="budget-stats">
+        <div class="stat-box">
+          <p class="label">Spent This Month</p>
+          <p class="value">$94.50</p>
+        </div>
+        <div class="stat-box">
+          <p class="label">Monthly Budget</p>
+          <p class="value">$120.00</p>
+        </div>
+        <div class="stat-box">
+          <p class="label">Status</p>
+          <p class="value under">$25.50 under budget</p>
+        </div>
+      </div>
+
+      <div class="budget-viz">
+        <article class="viz-card donut-wrap">
+          <h4>Budget Usage</h4>
+          <div class="donut" role="img" aria-label="79 percent of budget used">
+            <div class="donut-center">
+              <span>79%</span>
+              <small>used</small>
+            </div>
+          </div>
+          <div class="legend">
+            <span><i class="dot used-dot"></i>Used (79%)</span>
+            <span><i class="dot remain-dot"></i>Remaining (21%)</span>
+          </div>
+        </article>
+
+        <article class="viz-card graph-wrap">
+          <h4>Monthly Spending</h4>
+          <div class="chart-wrap">
+            <p class="axis-label axis-y">Amount Spent</p>
+            <div class="bar-chart" role="img" aria-label="Monthly spending bar chart from January to June">
+              <div class="bars">
+                <div class="bar-col"><div class="bar" style="--h: 36%"></div><span>Jan</span></div>
+                <div class="bar-col"><div class="bar" style="--h: 48%"></div><span>Feb</span></div>
+                <div class="bar-col"><div class="bar" style="--h: 62%"></div><span>Mar</span></div>
+                <div class="bar-col"><div class="bar" style="--h: 54%"></div><span>Apr</span></div>
+                <div class="bar-col"><div class="bar" style="--h: 78%"></div><span>May</span></div>
+                <div class="bar-col"><div class="bar" style="--h: 69%"></div><span>Jun</span></div>
+              </div>
+            </div>
+            <p class="axis-label axis-x">Months</p>
+          </div>
+          <p class="graph-caption"></p>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

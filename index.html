@@ -1,11 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boba Buds</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boba Buds</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+  <!-- Site header with primary navigation -->
+  <header class="site-header">
+    <div class="nav-bar">
+      <a class="site-title" href="index.html" aria-label="Boba Buds home">
+        <img class="site-logo" src="Images/bobabudslogo.png" alt="Boba Buds">
+        <img class="site-panda" src="Images/bobabudspanda.png" alt="Boba Buds panda mascot">
+      </a>
+      <nav aria-label="Main navigation">
+        <ul class="nav-links">
+          <li><a href="Pages/profile.html">Profile</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <section class="hero container" aria-labelledby="hero-heading">
+      <h1 id="hero-heading">Welcome to Boba Buds.</h1>
+      <p class="hero-subtext">Search nearby boba shops quickly and discover your next favorite drink spot.</p>
+
+      <!-- Search area -->
+      <section class="search-region" aria-label="Boba shop search">
+        <label class="sr-only" for="shop-search">Search for a boba shop</label>
+        <input
+          id="shop-search"
+          name="shop-search"
+          type="search"
+          placeholder="Search for a boba shop..."
+          autocomplete="off"
+        >
+
+        <!-- Geolocation controls for location-based search -->
+        <div class="geo-controls">
+          <button id="geoButton" type="button" class="geo-button">Use my location</button>
+          <p id="geoStatus" class="geo-status" aria-live="polite"></p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const geoButton = document.getElementById("geoButton");
+    const geoStatus = document.getElementById("geoStatus");
+
+    function setLoadingState(isLoading) {
+      geoButton.disabled = isLoading;
+      geoButton.textContent = isLoading ? "Locating..." : "Use my location";
+    }
+
+    function handleGeoSuccess() {
+      geoStatus.textContent = "Location found.";
+      setLoadingState(false);
+    }
+
+    function handleGeoError(error) {
+      let message = "Unable to get your location right now.";
+
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          message = "Location access was denied. You can enable it in your browser settings.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = "Your location is currently unavailable. Please try again.";
+          break;
+        case error.TIMEOUT:
+          message = "The location request timed out. Please try again.";
+          break;
+        default:
+          message = "An unknown geolocation error occurred.";
+      }
+
+      geoStatus.textContent = message;
+      setLoadingState(false);
+    }
+
+    geoButton.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        geoStatus.textContent = "Geolocation is not supported by this browser.";
+        return;
+      }
+
+      geoStatus.textContent = "Requesting location...";
+      setLoadingState(true);
+
+      navigator.geolocation.getCurrentPosition(handleGeoSuccess, handleGeoError, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000
+      });
+    });
+  </script>
 </body>
 </html>
